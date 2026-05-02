@@ -1123,23 +1123,23 @@
     <div class="testimonials-grid reveal" style="margin-top:56px">
       <div class="testi-card">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"Estrutura fantástica, deal 50% mais rakeback, aulas atualizadas, saque no ferro e muito mais. Apoio psicológico e de saúde. Há 4 anos aqui no Fênix e vendo melhoras a cada dia. Venha crescer conosco."</p>
+        <p class="testi-text">"Estrutura fantástica, deal 50% + rakeback, aulas atualizadas, saque no ferro, Chronos PopUp e muito mais. Apoio psicológico e de saúde. Há 4 anos aqui no Fênix e vendo melhoras a cada dia. Venha crescer conosco."</p>
         <div class="testi-author">
           <div class="testi-avatar">RM</div>
           <div>
-            <div class="testi-name">Rafael Marcos</div>
+            <div class="testi-name">Rafael "DogNit" Marcos</div>
             <div class="testi-role">Membro Fênix Elite</div>
           </div>
         </div>
       </div>
       <div class="testi-card">
         <div class="stars">★★★★★</div>
-        <p class="testi-text">"As aulas são super didáticas e ter contato direto com os melhores instrutores é um diferencial absurdo. Meu jogo evoluiu em um nível que eu não achei que seria possível em tão pouco tempo."</p>
+        <p class="testi-text">"Sempre fui jogador de sites e, quando recebi o convite para jogar em app, não imaginava o nível da experiência. No Fênix, fui surpreendido pela estrutura do time e pela organização. Tive a oportunidade de disputar o circuito gaúcho também pelo Fênix e cheguei muito perto do título. O profissionalismo do time e o deal me impressionou. Jogar em aplicativos se tornou uma experiência extremamente positiva e o Fênix foi o ambiente ideal para isso. Vem para o Fênix team, melhor deal do Brasil."</p>
         <div class="testi-author">
-          <div class="testi-avatar">BR</div>
+          <div class="testi-avatar">GB</div>
           <div>
-            <div class="testi-name">Bruno Russi</div>
-            <div class="testi-role">Membro Fênix Rising</div>
+            <div class="testi-name">Guilherme "SouGerman" Batista</div>
+            <div class="testi-role">Membro Fênix Elite</div>
           </div>
         </div>
       </div>
@@ -1490,11 +1490,47 @@ function prevStep(from) {
   updateProgress(prev);
 }
 
-function submitForm() {
-  document.getElementById('step4').classList.remove('active');
-  document.getElementById('stepSuccess').classList.add('active');
-  // Scroll to success
-  document.getElementById('inscricao').scrollIntoView({ behavior: 'smooth' });
+async function submitForm() {
+  const btn = document.querySelector('#step4 .btn-next');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  const objetivos = [...document.querySelectorAll('#step3 .radio-opt.selected')]
+    .filter(el => el.getAttribute('onclick') && el.getAttribute('onclick').includes('toggleCheck'))
+    .map(el => el.textContent.trim()).join(', ');
+
+  const data = {
+    nome:           document.getElementById('nome').value,
+    telefone:       document.getElementById('tel').value,
+    email:          document.getElementById('email').value,
+    nivel:          radioValues['nivel'] || '—',
+    disponibilidade:document.getElementById('disponibilidade').value,
+    nicks:          document.getElementById('nicks').value,
+    time_anterior:  radioValues['time'] || '—',
+    suprema:        radioValues['suprema'] || '—',
+    objetivos:      objetivos || '—',
+    carreira:       document.getElementById('carreira').value,
+    convenca:       document.getElementById('convenca').value,
+  };
+
+  try {
+    const res = await fetch('https://formspree.io/f/mnjwjaao', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (res.ok) {
+      document.getElementById('step4').classList.remove('active');
+      document.getElementById('stepSuccess').classList.add('active');
+      document.getElementById('inscricao').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      btn.textContent = 'Erro ao enviar. Tente novamente.';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = 'Erro ao enviar. Tente novamente.';
+    btn.disabled = false;
+  }
 }
 
 // Smooth scroll for all anchors
